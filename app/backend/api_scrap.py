@@ -53,7 +53,6 @@ class Worker():
             for n in path_id:
                 path_n = path['players']['ID%s' % n]
                 if path_n['position']['name'] != 'Goalie':
-                    print(n, team)
                     try:
                         time = path_n['stats']['skaterStats'][
                             'timeOnIce'].split(':')
@@ -62,7 +61,6 @@ class Worker():
                     time = int(time[0]) * 60 + int(time[1])
                     all_on_ice[time] = path_n['person']['fullName']
             keys = sorted(all_on_ice.keys(), reverse=True)
-            print(keys)
             for i in range(3):
                 out['%s_top_%s' % (team, i + 1)] = {
                     keys[i]: all_on_ice[keys[i]]
@@ -91,7 +89,6 @@ class Worker():
         for game_id in game_ids:
             url = urljoin(api_url, 'game/%s/boxscore' % game_id)
             r = get(url).json()
-            print(game_id)
             game_info[game_id] = self.get_score_names(r)
             top_on_ice[game_id] = self.get_top_on_ice(r)
         print(game_ids, game_info, top_on_ice, sep='\n')
