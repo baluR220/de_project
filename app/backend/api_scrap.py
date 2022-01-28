@@ -7,10 +7,8 @@ from calendar import monthrange
 class Worker():
 
     def __init__(self):
-        api_url = 'https://statsapi.web.nhl.com/api/v1/'
-        city = 'St. Louis'
-
-        self.main(api_url, city)
+        self.api_url = 'https://statsapi.web.nhl.com/api/v1/'
+        self.city = 'St. Louis'
 
     def get_team_ids(self, api_url, city) -> list:
         team_ids = []
@@ -48,14 +46,23 @@ class Worker():
         for team in ['away', 'home']:
             path = data['teams'][team]
             all_on_ice = {}
-            for n in path['onIce']:
+            if path['onIce']:
+                path_id = path['onIce']
+            else:
+                path_id = path['skaters']
+            for n in path_id:
                 path_n = path['players']['ID%s' % n]
                 if path_n['position']['name'] != 'Goalie':
-                    time = path_n['stats']['skaterStats'][
-                        'timeOnIce'].split(':')
+                    print(n, team)
+                    try:
+                        time = path_n['stats']['skaterStats'][
+                            'timeOnIce'].split(':')
+                    except KeyError:
+                        time = '0:0'.split(':')
                     time = int(time[0]) * 60 + int(time[1])
                     all_on_ice[time] = path_n['person']['fullName']
             keys = sorted(all_on_ice.keys(), reverse=True)
+            print(keys)
             for i in range(3):
                 out['%s_top_%s' % (team, i + 1)] = {
                     keys[i]: all_on_ice[keys[i]]
@@ -72,9 +79,10 @@ class Worker():
         end_day = '%s-%s-31' % (year, month)
         return(start_day, end_day)
 
-    def main(self, api_url, city):
+    def scrap(self):
         game_info = {}
         top_on_ice = {}
+        api_url, city = self.api_url, self.city
 
         team_ids = self.get_team_ids(api_url, city)
         start_day, end_day = self.get_date_interval()
@@ -83,6 +91,7 @@ class Worker():
         for game_id in game_ids:
             url = urljoin(api_url, 'game/%s/boxscore' % game_id)
             r = get(url).json()
+            print(game_id)
             game_info[game_id] = self.get_score_names(r)
             top_on_ice[game_id] = self.get_top_on_ice(r)
         print(game_ids, game_info, top_on_ice, sep='\n')
@@ -90,3 +99,4 @@ class Worker():
 
 if __name__ == '__main__':
     w = Worker()
+    w.scrap()
