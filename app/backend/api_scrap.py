@@ -1,14 +1,16 @@
 from requests import get
 from urllib.parse import urljoin
-from datetime import datetime
-from calendar import monthrange
+
+from common import API_URL, CITY
 
 
 class Worker():
 
-    def __init__(self):
-        self.api_url = 'https://statsapi.web.nhl.com/api/v1/'
-        self.city = 'St. Louis'
+    def __init__(self, api_url, city, start_date, end_date):
+        self.api_url = api_url
+        self.city = city
+        self.start_date = start_date
+        self.end_date = end_date
 
     def get_team_ids(self, api_url, city) -> list:
         team_ids = []
@@ -19,11 +21,11 @@ class Worker():
                 team_ids.append(line['id'])
         return(team_ids)
 
-    def get_game_ids(self, api_url, team_ids, start_day, end_day) -> dict:
+    def get_game_id_date(self, api_url, team_ids, start_date, end_date) -> dict:
         game_id_date = {}
         url = urljoin(api_url, 'schedule')
         for team_id in team_ids:
-            payload = {'startDate': start_day, 'endDate': end_day,
+            payload = {'startDate': start_date, 'endDate': end_date,
                        'teamId': team_id}
             r = get(url, params=payload).json()
             for line in r['dates']:
@@ -67,33 +69,30 @@ class Worker():
                 }
         return out
 
-    def get_date_interval(self) -> tuple:
-        today = datetime.today()
-        if today.month - 1 == 0:
-            (year, month) = (today.year - 1, 12)
-        else:
-            (year, month) = (today.year, today.month - 1)
-        start_day = '%s-%s-1' % (year, month)
-        end_day = '%s-%s-31' % (year, month)
-        return(start_day, end_day)
-
     def scrap(self):
         game_info = {}
         top_on_ice = {}
         api_url, city = self.api_url, self.city
+        start_date, end_date = self.start_date, self.end_date
 
         team_ids = self.get_team_ids(api_url, city)
-        start_day, end_day = self.get_date_interval()
-        game_ids = self.get_game_ids(api_url, team_ids, start_day, end_day)
+        game_id_date = self.get_game_id_date(api_url, team_ids, start_date,
+                                             end_date)
 
-        for game_id in game_ids:
+        for game_id in game_id_date.keys():
             url = urljoin(api_url, 'game/%s/boxscore' % game_id)
             r = get(url).json()
             game_info[game_id] = self.get_score_names(r)
             top_on_ice[game_id] = self.get_top_on_ice(r)
-        print(game_ids, game_info, top_on_ice, sep='\n')
+
+        self.game_id_date = game_id_date
+        self.game_info = game_info
+        self.top_on_ice = top_on_ice
 
 
 if __name__ == '__main__':
-    w = Worker()
+    start_date = '2022-01-01'
+    end_date = '2022-01-31'
+    w = Worker(API_URL, CITY, start_date, end_date)
     w.scrap()
+    print(w.game_id_date)
