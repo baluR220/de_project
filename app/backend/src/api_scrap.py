@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from common import API_URL, CITY
 
 
-class Worker():
+class APIWorker():
 
     def __init__(self, api_url, city, start_date, end_date):
         self.api_url = api_url
@@ -21,7 +21,7 @@ class Worker():
                 team_ids.append(line['id'])
         return(team_ids)
 
-    def get_game_id_date(self, api_url, team_ids, start_date, end_date) -> dict:
+    def get_game_id_date(self, api_url, team_ids, start_date, end_date):
         game_id_date = {}
         url = urljoin(api_url, 'schedule')
         for team_id in team_ids:
@@ -38,8 +38,8 @@ class Worker():
         out = {}
         for team in ['away', 'home']:
             path = data['teams'][team]
-            out['%s_name' % team] = path['team']['name']
-            out['%s_score' % team] = path['teamStats'][
+            out[f'{team}_name'] = path['team']['name']
+            out[f'{team}_score'] = path['teamStats'][
                 'teamSkaterStats']['goals']
         return out
 
@@ -53,7 +53,7 @@ class Worker():
             else:
                 path_id = path['skaters']
             for n in path_id:
-                path_n = path['players']['ID%s' % n]
+                path_n = path['players'][f'ID{n}']
                 if path_n['position']['name'] != 'Goalie':
                     try:
                         time = path_n['stats']['skaterStats'][
@@ -64,7 +64,7 @@ class Worker():
                     all_on_ice[time] = path_n['person']['fullName']
             keys = sorted(all_on_ice.keys(), reverse=True)
             for i in range(3):
-                out['%s_top_%s' % (team, i + 1)] = {
+                out[f'{team}_top_{i + 1}'] = {
                     keys[i]: all_on_ice[keys[i]]
                 }
         return out
@@ -80,7 +80,7 @@ class Worker():
                                              end_date)
 
         for game_id in game_id_date.keys():
-            url = urljoin(api_url, 'game/%s/boxscore' % game_id)
+            url = urljoin(api_url, f'game/{game_id}/boxscore')
             r = get(url).json()
             game_info[game_id] = self.get_score_names(r)
             top_on_ice[game_id] = self.get_top_on_ice(r)
@@ -93,6 +93,6 @@ class Worker():
 if __name__ == '__main__':
     start_date = '2022-01-01'
     end_date = '2022-01-31'
-    w = Worker(API_URL, CITY, start_date, end_date)
+    w = APIWorker(API_URL, CITY, start_date, end_date)
     w.scrap()
     print(w.game_id_date)
