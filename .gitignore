@@ -1,5 +1,7 @@
 /*
-venv
 !app/
+!app/backend
+app/backend/*
+!app/backend/src/
 !README.md
 !.gitignore
