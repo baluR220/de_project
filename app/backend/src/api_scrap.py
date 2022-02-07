@@ -31,7 +31,7 @@ class APIWorker():
             for line in r['dates']:
                 for game in line['games']:
                     if game['teams']['home']['team']['id'] == team_id:
-                        game_id_date[game['gamePk']] = line['date']
+                        game_id_date[game['gamePk']] = {'date': line['date']}
         return(game_id_date)
 
     def get_score_names(self, data) -> dict:
@@ -64,9 +64,8 @@ class APIWorker():
                     all_on_ice[time] = path_n['person']['fullName']
             keys = sorted(all_on_ice.keys(), reverse=True)
             for i in range(3):
-                out[f'{team}_top_{i + 1}'] = {
-                    keys[i]: all_on_ice[keys[i]]
-                }
+                out[f'{team}_top_{i + 1}_time'] = keys[i]
+                out[f'{team}_top_{i + 1}_name'] = all_on_ice[keys[i]]
         return out
 
     def scrap(self):
@@ -95,4 +94,4 @@ if __name__ == '__main__':
     end_date = '2022-01-31'
     w = APIWorker(API_URL, CITY, start_date, end_date)
     w.scrap()
-    print(w.game_id_date)
+    print(w.game_id_date, w.game_info, w.top_on_ice, sep='\n\n')
