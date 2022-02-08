@@ -22,7 +22,7 @@ class APIWorker():
         return(team_ids)
 
     def get_game_id_date(self, api_url, team_ids, start_date, end_date):
-        game_id_date = {}
+        game_id_date = []
         url = urljoin(api_url, 'schedule')
         for team_id in team_ids:
             payload = {'startDate': start_date, 'endDate': end_date,
@@ -31,7 +31,9 @@ class APIWorker():
             for line in r['dates']:
                 for game in line['games']:
                     if game['teams']['home']['team']['id'] == team_id:
-                        game_id_date[game['gamePk']] = {'date': line['date']}
+                        game_id_date.append({
+                            'game_id': game['gamePk'], 'date': line['date']
+                        })
         return(game_id_date)
 
     def get_score_names(self, data) -> dict:
@@ -69,8 +71,8 @@ class APIWorker():
         return out
 
     def scrap(self):
-        game_info = {}
-        top_on_ice = {}
+        game_info = []
+        top_on_ice = []
         api_url, city = self.api_url, self.city
         start_date, end_date = self.start_date, self.end_date
 
@@ -78,11 +80,16 @@ class APIWorker():
         game_id_date = self.get_game_id_date(api_url, team_ids, start_date,
                                              end_date)
 
-        for game_id in game_id_date.keys():
+        for game in game_id_date:
+            game_id = game['game_id']
             url = urljoin(api_url, f'game/{game_id}/boxscore')
             r = get(url).json()
-            game_info[game_id] = self.get_score_names(r)
-            top_on_ice[game_id] = self.get_top_on_ice(r)
+            d = {'game_id': game_id}
+            d.update(self.get_score_names(r))
+            game_info.append(d)
+            d = {'game_id': game_id}
+            d.update(self.get_top_on_ice(r))
+            top_on_ice.append(d)
 
         self.game_id_date = game_id_date
         self.game_info = game_info
