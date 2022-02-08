@@ -1,8 +1,4 @@
-from os import environ
-
 import sqlalchemy as sa
-
-from common import DB_HOST, DB_PREFIX, DB_NAME
 
 
 class DBWorker():
@@ -96,12 +92,3 @@ class DBWorker():
         for table in reversed(self.meta_obj.sorted_tables):
             with self.engine.connect() as connection:
                 connection.execute(table.delete())
-
-
-if __name__ == '__main__':
-    user = environ['DB_USER']
-    secret = environ['DB_SECRET']
-    w = DBWorker(user, secret, DB_PREFIX, DB_HOST, DB_NAME)
-    w.ensure_tables()
-    data = [{'game_id': 2021020613, 'date': '2022-01-07'}]
-    w.put_data('game_date', data)
