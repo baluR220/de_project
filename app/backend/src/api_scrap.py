@@ -1,8 +1,6 @@
 from requests import get
 from urllib.parse import urljoin
 
-from common import API_URL, CITY
-
 
 class APIWorker():
 
@@ -94,11 +92,3 @@ class APIWorker():
         self.game_id_date = game_id_date
         self.game_info = game_info
         self.top_on_ice = top_on_ice
-
-
-if __name__ == '__main__':
-    start_date = '2022-01-01'
-    end_date = '2022-01-31'
-    w = APIWorker(API_URL, CITY, start_date, end_date)
-    w.scrap()
-    print(w.game_id_date, w.game_info, w.top_on_ice, sep='\n\n')
