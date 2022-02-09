@@ -1,8 +1,6 @@
 /*
 __pycache__
 !app/
-!app/backend
-app/backend/*
-!app/backend/src/
+!app/*
 !README.md
 !.gitignore
