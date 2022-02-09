@@ -87,8 +87,21 @@ class DBWorker():
         with self.engine.connect() as connect:
             connect.execute(sa.insert(self.meta_obj.tables[table_name]), data)
             connect.commit()
+        return True
 
     def delete_data(self):
         for table in reversed(self.meta_obj.sorted_tables):
             with self.engine.connect() as connection:
                 connection.execute(table.delete())
+                connection.commit()
+        return True
+
+    def get_db_date(self):
+        with self.engine.connect() as connect:
+            table = self.meta_obj.tables['game_date']
+            res = []
+            for row in connect.execute(sa.select(table.c.date)):
+                res.append(row.date)
+            if len(res) == 0:
+                return False
+        return res[0]
