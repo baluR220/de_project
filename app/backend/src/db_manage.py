@@ -26,7 +26,7 @@ class DBWorker():
             sa.Column('home_score', sa.Integer),
         )
         sa.Table(
-            'top_score', meta_obj,
+            'top_time', meta_obj,
             sa.Column('id', sa.Integer, primary_key=True),
             sa.Column('game_id', sa.Integer),
             sa.Column('away_top_1_name', sa.String(50)),
