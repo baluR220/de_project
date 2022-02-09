@@ -89,6 +89,6 @@ class APIWorker():
             d.update(self.get_top_on_ice(r))
             top_on_ice.append(d)
 
-        self.game_id_date = game_id_date
+        self.game_date = game_id_date
         self.game_info = game_info
-        self.top_on_ice = top_on_ice
+        self.top_time = top_on_ice
