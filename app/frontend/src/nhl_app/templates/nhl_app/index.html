@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>NHL</title>
+</head>
+<body>
+ <h1>NHL Header</h1>
+{% if game_date %}
+ <h1>Show Data</h1>
+ {% for game in game_date %}
+ <p>{{game.game_id}} {{game.date}}</p>
+ {% endfor %}
+{% else %}
+ <h1>No Data</h1>
+{% endif %}
+</body>
+</html>
