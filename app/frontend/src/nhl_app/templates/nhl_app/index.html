@@ -3,15 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>NHL</title>
+    <style>
+        body {
+            max-width: 800px;
+        }
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+
+        td, th {
+          border: 1px solid #dddddd;
+          text-align: left;
+          padding: 8px;
+          text-align: center;
+        }
+        .filler {
+          background-color: #dddddd;
+        }
+        
+        </style>
+    <title>NHL_project</title>
 </head>
 <body>
- <h1>NHL Header</h1>
-{% if game_date %}
- <h1>Show Data</h1>
- {% for game in game_date %}
- <p>{{game.game_id}} {{game.date}}</p>
- {% endfor %}
+{% if games %}
+    <h1>Games</h1>
+    <table>
+    <tr><td colspan="3" class="filler"></td></tr>
+    {% for game in games %}
+    <tr>
+        <th>Date</th>
+        <td colspan="2">{{game.date}}</td>
+    </tr>
+    <tr>
+        <th>Teams</th>
+        <td>{{game.home_name}}</td>
+        <td>{{game.away_name}}</td>
+    </tr>
+    <tr>
+        <th>Score</th>
+        <td colspan="2">{{game.home_score}}:{{game.away_score}}</td>
+    </tr>
+    <tr>
+        <th rowspan="3">Top 3 on ice</th>
+        <td>{{game.home_top_1_name}} ({{game.home_top_1_time}})</td>
+        <td>{{game.away_top_1_name}} ({{game.away_top_1_time}})</td>
+    </tr>
+    <tr>
+        <td>{{game.home_top_2_name}} ({{game.home_top_2_time}})</td>
+        <td>{{game.away_top_2_name}} ({{game.away_top_2_time}})</td>
+    </tr>
+    <tr>
+        <td>{{game.home_top_3_name}} ({{game.home_top_3_time}})</td>
+        <td>{{game.away_top_3_name}} ({{game.away_top_3_time}})</td>
+    </tr>
+    <tr><td colspan="3" class="filler"></td></tr>
+    {% endfor %}
+    </table>
 {% else %}
  <h1>No Data</h1>
 {% endif %}
