@@ -1,5 +1,8 @@
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+
 from nhl_app.models import GameDate, GameInfo, TopTime
+from nhl_app.misc import call_update_db
 
 
 def index(request):
@@ -38,3 +41,12 @@ def index(request):
         }
         games.append(game)
     return render(request, 'nhl_app/index.html', {'games': games})
+
+
+def update_db(request):
+    return HttpResponseRedirect('/result/')
+
+
+def result(request):
+    res = call_update_db()
+    return render(request, 'nhl_app/result.html', {'result': res})
