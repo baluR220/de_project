@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <style>
+        body {
+            max-width: 800px;
+        }
+    </style>
+    <title>NHL_project</title>
+</head>
+<body>
+    {% if result %}
+    {% if resilt.status == 'ok' %}
+    <h2>Database is updating. Please return to main page</h2>
+    {% else %}
+    <h2>Something went wrong...</h2>
+    <p>{{result.content}}</p>
+    {% endif %}
+    {% else %}
+    <h2>No Data</h2>
+    {% endif %}
+    <a href="/">Return to main page</a>
+</body>
+</html>

@@ -29,6 +29,9 @@
 <body>
 {% if games %}
     <h1>Games</h1>
+    <form action="/update_db/" method="get">
+        <input type="submit" name="submit" value="Update DB">
+    </form>
     <table>
     <tr><td colspan="3" class="filler"></td></tr>
     {% for game in games %}
