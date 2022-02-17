@@ -1,8 +1,12 @@
 /*
 __pycache__
 migrations
-secrets*
+*secrets*
+*tfstate*
+.terraform
 !app/
 !app/*
+!infra/
+!infra/*
 !README.md
 !.gitignore
