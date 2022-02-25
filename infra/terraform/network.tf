@@ -26,56 +26,90 @@ resource "aws_subnet" "nhl_west_2b" {
   }
 }
 
-resource "aws_security_group" "ssh_for_ec2" {
-  name        = "allow_in_ssh"
-  description = "Allow ssh inbound"
-  vpc_id      = aws_vpc.nhl.id
-
-  ingress {
-    description      = "ssh from all"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
+resource "aws_internet_gateway" "nhl_igw" {
+  vpc_id = aws_vpc.nhl.id
 
   tags = {
-    Name = "allow_ssh"
+    Name = "nhl_igw"
   }
 }
 
-resource "aws_security_group" "mysql_for_db" {
-  name        = "allow_in_mysql"
-  description = "Allow mysql inbound"
-  vpc_id      = aws_vpc.nhl.id
+resource "aws_route_table" "nhl_rt" {
+  vpc_id = aws_vpc.nhl.id
 
-  ingress {
-    description      = "mysql from all"
-    from_port        = 3306
-    to_port          = 3306
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.nhl_igw.id
   }
 
   tags = {
-    Name = "allow_mysql"
+    Name = "nhl_rt"
   }
+}
+
+resource "aws_main_route_table_association" "rt_as" {
+  vpc_id         = aws_vpc.nhl.id
+  route_table_id = aws_route_table.nhl_rt.id
+}
+
+resource "aws_security_group" "sg_for_ec2" {
+  name        = "sg_for_ec2"
+  description = "Security group for ec2 instance"
+  vpc_id      = aws_vpc.nhl.id
+
+  tags = {
+    Name = "sg_for_ec2"
+  }
+}
+
+resource "aws_security_group" "sg_for_db" {
+  name        = "sg_for_db"
+  description = "Security group for db instance"
+  vpc_id      = aws_vpc.nhl.id
+
+  tags = {
+    Name = "sg_for_db"
+  }
+}
+
+resource "aws_security_group_rule" "in_mysql_db" {
+  type              = "ingress"
+  description       = "mysql from all"
+  from_port         = 3306
+  to_port           = 3306
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+  security_group_id = aws_security_group.sg_for_db.id
+}
+
+resource "aws_security_group_rule" "out_all_db" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+  security_group_id = aws_security_group.sg_for_db.id
+}
+
+resource "aws_security_group_rule" "in_ssh_ec2" {
+  type              = "ingress"
+  description       = "ssh from all"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+  security_group_id = aws_security_group.sg_for_ec2.id
+}
+
+resource "aws_security_group_rule" "out_all_ec2" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+  security_group_id = aws_security_group.sg_for_ec2.id
 }
