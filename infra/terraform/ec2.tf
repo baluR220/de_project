@@ -29,6 +29,10 @@ resource "aws_instance" "nhl_ec2" {
   availability_zone      = "us-west-2a"
   key_name               = aws_key_pair.ec2_key.id
   subnet_id              = aws_subnet.nhl_west_2a.id
-  vpc_security_group_ids = [aws_security_group.ssh_for_ec2.id]
+  vpc_security_group_ids = [aws_security_group.sg_for_ec2.id]
+  depends_on             = [aws_internet_gateway.nhl_igw]
 
+  tags = {
+    Name = "nhl_ec2"
+  }
 }
