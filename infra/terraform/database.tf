@@ -18,7 +18,7 @@ resource "aws_db_instance" "nhl" {
   password               = var.db_secret
   db_subnet_group_name   = aws_db_subnet_group.nhl.name
   skip_final_snapshot    = true
-  vpc_security_group_ids = [aws_security_group.mysql_for_db.id]
+  vpc_security_group_ids = [aws_security_group.sg_for_db.id]
 
   tags = {
     Name = "nhl_db"
